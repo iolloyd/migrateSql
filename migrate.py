@@ -81,6 +81,7 @@ database = 'tf_framework'
 
 print 'use %s;' % database
 
+print 'set foreign_key_checks=0;'
 sql = open(filename).read()
 tables = split(sql, 'CREATE TABLE ')
 tables = tables[1:] # Ditch the header comments
@@ -92,3 +93,5 @@ tables = map(migrateTable, tables) # map correct table and column names
 
 for x in tables:
     showTable(x)
+
+
