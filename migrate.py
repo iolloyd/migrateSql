@@ -2,28 +2,44 @@ from pprint import pprint
 from string import split, strip
 
 def getMappings(x):
-    """
-    add any tables which have a different name or different
-    column names in the new database.
-
-    Example:
-    the table 'foo' in the legacy database is called booyaka in
-    the new database and has one column 'buk' renamed to 'zak'.
-
     mappings = {
-        'foo': { 'name': 'booyaka',
-            'columns': { 'buk': 'zak' }
+            'orderItems': {
+                'add': {
+                    'baseValue':
+
+        'orderAddresses': {
+            'name': 'order_addresses',
+            'columns': {
+                'orderAddressID': 'order_address_id',
+                'orderID': 'order_id',
+                'customerAddressID': 'customer_address_id',
+                }
+            },
+        'billerActiveCurrencies': {
+            'columns': {
+                'default': 'is_default'
+                }
+            },
+        'clients': {
+            'columns': {
+                'APIKey': 'apiKey'
+                },
+            },
+        'languages': {
+            'columns': {
+                'languageID': 'id'
+            },
+            'add': {
+                'title': ''
+            },
+        },
+        'storeCoupons': {
+            'add': {
+                'requiredProducts': ''
+            },
         }
     }
-    """
-    mappings = {
-        'invoices': {
-            'name': 'orderInvoices'
-            },
-        'addresses': {
-            'name': 'orderAddresses'
-            },
-    }
+
     if x in mappings.keys():
         return mappings[x]
     return None
@@ -68,10 +84,12 @@ def migrateTable(x):
     return x
 
 def showTable(x):
+    """
     if len(x['inserts']) > 0:
         print "DROP TABLE if exists %s;" % x['name']
         print "CREATE TABLE %s (\n%s;\n" % (x['name'], x['body'])
 
+    """
     for x in x['inserts']:
         print "%s);" % x
 """Enter sql dump filename and new database name
@@ -81,7 +99,8 @@ database = 'tf_framework'
 
 print 'use %s;' % database
 
-print 'set foreign_key_checks=0;'
+print 'SET FOREIGN_KEY_CHECKS = 0;'
+
 sql = open(filename).read()
 tables = split(sql, 'CREATE TABLE ')
 tables = tables[1:] # Ditch the header comments
@@ -94,4 +113,5 @@ tables = map(migrateTable, tables) # map correct table and column names
 for x in tables:
     showTable(x)
 
+print 'SET FOREIGN_KEY_CHECKS = 1;'
 
