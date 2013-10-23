@@ -19,7 +19,7 @@ def getMappings(x):
                 'languageID': 'id'
             },
             'add': {
-                'title': 'xxx'
+                'title': ''
             },
         },
         'orderItems': {
@@ -33,7 +33,14 @@ def getMappings(x):
                 'orderAddressID': 'order_address_id',
                 'orderID': 'order_id',
                 'customerAddressID': 'customer_address_id',
-            }
+            },
+            'populate': {
+                    'rule': 'customerAddresses.customerAddressID = customerAddress.customerAddressID',
+                    'columns': {
+                        'original': ['firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'phone', 'status', 'created', 'modified'],
+                        'new': ['firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'phone', 'status', 'created', 'modified']
+                    }
+            },
         },
         'storeCoupons': {
             'add': {
@@ -53,6 +60,17 @@ isInsert = lambda x: len(x.split('INSERT INTO')) > 1
 hasInserts = lambda t: len(t['inserts']) > 0
 blacklist = ['alerts', 'emailQueue']
 ignoreBlacklist = lambda t: t['name'] not in blacklist
+
+def insertSelect(mapping, name):
+    stmt = "INSERT INTO {tableA} ({colsA}) SELECT {colsB} FROM {tableB} WHERE {rule};"
+    sql = stmt.format(
+        tableA = name,
+        tableB = mapping.get(name, name),
+        colsA  = ','.join(mapping['columns']['original']),
+        colsB  = ','.join(mapping['columns']['new']),
+        rule  = mapping['rule']
+    )
+    print sql
 
 def addMissingColumns(table, mapping):
     m = mapping['add']
@@ -113,9 +131,9 @@ def showInserts(x):
     for table in x['inserts']:
         print "%s);" % table
 
-
 filename = 'fullDump.sql'
 database = 'tf_framework'
+pivotTables = ['orderAddresses']
 
 print 'use %s;' % database
 
@@ -135,5 +153,8 @@ for x in tables:
 
 for x in tables:
     showInserts(x)
+
+for x in pivotTables:
+    insertSelect(getMapping(x), x)
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'
