@@ -67,8 +67,14 @@ def getMappings(x):
         },
         'storeCoupons': {
             'add': {
-                'requiredProducts': ''
+                'autoEnable': 0,
+                'approval_code': ''
             },
+        },
+        'tagDomains': {
+            'columns': {
+                'targetURL': 'defaultURL'
+            }
         }
     }
 
