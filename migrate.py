@@ -22,6 +22,17 @@ def getMappings(x):
                 'title': ''
             },
         },
+        'orders': {
+            'populate' [:
+                {
+                    'rule': 'orders.orderID = billerTransactionRequests.orderID',
+                    'columns': {
+                        'original': ['shippingAddressID'],
+                        'new': ['shippingAddressID]
+                    }
+                }
+            ]
+        },
         'orderItems': {
             'add': {
                 'baseValue': ''
@@ -34,13 +45,25 @@ def getMappings(x):
                 'orderID': 'order_id',
                 'customerAddressID': 'customer_address_id',
             },
-            'populate': {
-                    'rule': 'customerAddresses.customerAddressID = customerAddress.customerAddressID',
+            'populate': [
+                {
+                    'rule': 'orderAddresses.customerAddressID = customerAddress.customerAddressID',
                     'columns': {
                         'original': ['firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'phone', 'status', 'created', 'modified'],
                         'new': ['firstName', 'lastName', 'address1', 'address2', 'city', 'state', 'country', 'zip', 'phone', 'status', 'created', 'modified']
                     }
-            },
+                },
+                {
+                    'rule': 'orderAddresses.orderAddressID = billerTransactionRequests.id',
+                    'columns': {
+                        'original': ['billingAddressID'],
+                        'new': ['billingAddressID']
+                    }
+                }
+            ]
+        },
+        'orderQuotes': {
+            'name': 'orderInvoices'
         },
         'storeCoupons': {
             'add': {
