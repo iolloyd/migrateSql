@@ -4,6 +4,9 @@ from string import split, strip
 
 def getMappings(x):
     mappings = {
+        'acl': {
+            'name': 'acl'
+        },
         'billerActiveCurrencies': {
             'columns': {
                 'default': 'is_default'
@@ -23,12 +26,12 @@ def getMappings(x):
             },
         },
         'orders': {
-            'populate' [:
+            'populate': [
                 {
                     'rule': 'orders.orderID = billerTransactionRequests.orderID',
                     'columns': {
-                        'original': ['shippingAddressID'],
-                        'new': ['shippingAddressID]
+                        'original': ['shippingAddressID', ],
+                        'new': ['shippingAddressID', ],
                     }
                 }
             ]
@@ -77,10 +80,7 @@ def getMappings(x):
             }
         }
     }
-
-    if x in mappings.keys():
-        return mappings[x]
-    return None
+    return mappings.get(x, None)
 
 
 justUseful = lambda x: split(x, '\n')
@@ -91,15 +91,16 @@ blacklist = ['alerts', 'emailQueue']
 ignoreBlacklist = lambda t: t['name'] not in blacklist
 
 def insertSelect(mapping, name):
-    stmt = "INSERT INTO {tableA} ({colsA}) SELECT {colsB} FROM {tableB} WHERE {rule};"
-    sql = stmt.format(
-        tableA = name,
-        tableB = mapping.get(name, name),
-        colsA  = ','.join(mapping['columns']['original']),
-        colsB  = ','.join(mapping['columns']['new']),
-        rule  = mapping['rule']
-    )
-    print sql
+    for rule in mapping['populate']:
+        stmt = "INSERT INTO {tableA} ({colsA}) SELECT {colsB} FROM {tableB} WHERE {rule};"
+        sql = stmt.format(
+            tableA = name,
+            tableB = mapping.get(name, name),
+            colsA  = ','.join(rule['columns']['original']),
+            colsB  = ','.join(rule['columns']['new']),
+            rule  = rule['rule']
+        )
+        print sql
 
 def addMissingColumns(table, mapping):
     m = mapping['add']
@@ -177,13 +178,14 @@ tables = filter(hasInserts, tables) # Ignore tables without inserts
 tables = filter(ignoreBlacklist, tables) # currently ignores 'alerts'
 tables = map(migrateTable, tables) # map correct table and column names
 
+"""
 for x in tables:
     showTable(x)
 
 for x in tables:
     showInserts(x)
-
+"""
 for x in pivotTables:
-    insertSelect(getMapping(x), x)
+    insertSelect(getMappings(x), x)
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'
