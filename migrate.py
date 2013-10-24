@@ -28,7 +28,6 @@ def injectValue(insert, mapping):
 
 
 def removeValue(insert, mapping):
-
     fields, values = insert.split(') VALUES (')
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
@@ -39,8 +38,7 @@ def removeValue(insert, mapping):
     newRows = []
     for row in values:
         for idx in indexes:
-            row = row.split(",")
-            row.remove(row[idx])
+            row.remove(row.split(",")[idx])
             newRows.append(','.join(row))
     return "%s (%s) VALUES (%s);" % (pre, ','.join(fields), '),('.join(newRows))
 
