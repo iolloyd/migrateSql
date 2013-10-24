@@ -1,30 +1,10 @@
 from pprint import pprint
 from string import split, strip
+from rules import mappings, legacyOnly, insertOnly
 
 
 def getMappings(x):
-    import rules
-    return rules.mappings.get(x, None)
-
-
-justUseful = lambda x: split(x, '\n')
-label = lambda tableName, mapping: mapping.get(tableName, tableName)
-isInsert = lambda x: len(x.split('INSERT INTO')) > 1
-hasInserts = lambda t: len(t['inserts']) > 0
-blacklist = ['alerts', 'emailQueue']
-ignoreBlacklist = lambda t: t['name'] not in blacklist
-
-def insertSelect(mapping, name):
-    for rule in mapping['populate']:
-        stmt = "INSERT INTO {tableA} ({colsA}) SELECT {colsB} FROM {tableB} WHERE {rule};"
-        sql = stmt.format(
-            tableA = name,
-            tableB = mapping.get(name, name),
-            colsA  = ','.join(rule['columns']['original']),
-            colsB  = ','.join(rule['columns']['new']),
-            rule  = rule['rule']
-        )
-        print sql
+    return mappings.get(x, None)
 
 def addMissingColumns(table, mapping):
     m = mapping['add']
@@ -83,14 +63,21 @@ def showTable(x):
 
 def showInserts(x):
     for table in x['inserts']:
+        print 'DELETE FROM %s;' % x['name']
         print "%s);" % table
+
+justUseful = lambda x: split(x, '\n')
+label = lambda tableName, mapping: mapping.get(tableName, tableName)
+isInsert = lambda x: len(x.split('INSERT IGNORE INTO')) > 1
+hasInserts = lambda t: len(t['inserts']) > 0
+blacklist = ['alerts', 'emailQueue']
+ignoreBlacklist = lambda t: t['name'] not in blacklist
 
 filename = 'fullDump.sql'
 database = 'tf_framework'
 pivotTables = ['orderAddresses']
 
-print 'use %s;' % database
-
+print 'USE %s;' % database
 print 'SET FOREIGN_KEY_CHECKS = 0;'
 
 sql = open(filename).read()
@@ -100,16 +87,8 @@ tables = filter(justUseful, tables) # Get rid of other comments
 tables = map(parseTable, tables) # Create table objects
 tables = filter(hasInserts, tables) # Ignore tables without inserts
 tables = filter(ignoreBlacklist, tables) # currently ignores 'alerts'
-tables = map(migrateTable, tables) # map correct table and column names
+tables = map(migrateTable, tables) # map correct table and column namesa
 
-"""
-for x in tables:
-    showTable(x)
-
-for x in tables:
-    showInserts(x)
-"""
-for x in pivotTables:
-    insertSelect(getMappings(x), x)
+[showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'

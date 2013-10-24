@@ -140,7 +140,6 @@ legacyOnly = [
     'ipranges',
     'productReviews',
     'promotionRulesMeta',
-
 ]
 
 insertOnly = [
@@ -151,7 +150,7 @@ insertOnly = [
     'billerCurrencyRates',
     'billers',
     'billerStoredDetails',
-    'billerTransactionRequests',
+    # 'billerTransactionRequests',
     'billerTransactions',
     'customerAuthentication',
     'customerBlacklists',
@@ -180,5 +179,19 @@ insertOnly = [
     'storeErrorStrings',
     'storeImageGroups',
     'storeImages',
-
+    'storeProducts',
+    'storeRegionCurrencies',
+    'storeRegions',
+    'stores',
+    'storeStrings',
+    'storeThemes',
+    'tagDomains',
+    'tagLocations',
+    'tagRedirectRules',
+    'tagRedirects',
+    'tags',
+    'tagScans',
+    'transactionLogs',
+    'translations',
+    'users',
 ]
