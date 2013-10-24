@@ -35,10 +35,8 @@ def removeValue(insert, mapping):
     indexes = map(lambda x, f=fields: f.index('`%s`' % x), mapping['remove'])
     for w in mapping['remove']:
         fields.remove('`%s`' % w)
-
     values = values.split('),(')
     newRows = []
-    print values[0:3]
     for row in values:
         for idx in indexes:
             row = row.split(",")
