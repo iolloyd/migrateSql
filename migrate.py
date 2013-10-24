@@ -1,14 +1,17 @@
 from pprint import pprint
 from string import split, strip
-from rules import mappings, legacyOnly, insertOnly
+from rules import mappingOnly, legacyOnly, insertOnly
 
 
 def getMappings(x):
-    return mappings.get(x, None)
+    return mappingOnly.get(x, False)
 
 def addMissingColumns(table, mapping):
-    m = mapping['add']
-    table['inserts'] = map(lambda x, m=m: injectValue(x, m), table['inserts'])
+    table['inserts'] = map(lambda x, m=mapping: injectValue(x, m), table['inserts'])
+    return table
+
+def removeColumns(table, m):
+    table['inserts'] = map(lambda x, m=m: removeValue(x, m), table['inserts'])
     return table
 
 def injectValue(insert, mapping):
@@ -22,6 +25,26 @@ def injectValue(insert, mapping):
     chunks[1] = "(%s" % chunks[1]
     chunks[2] = "(%s" % chunks[2]
     return ''.join(chunks)
+
+
+def removeValue(insert, mapping):
+
+    fields, values = insert.split(') VALUES (')
+    pre, fields = fields.split('(', 1)
+    fields = map(strip, fields.split(','))
+    indexes = map(lambda x, f=fields: f.index('`%s`' % x), mapping['remove'])
+    for w in mapping['remove']:
+        fields.remove('`%s`' % w)
+
+    values = values.split('),(')
+    newRows = []
+    print values[0:3]
+    for row in values:
+        for idx in indexes:
+            row = row.split(",")
+            row.remove(row[idx])
+            newRows.append(','.join(row))
+    return "%s (%s) VALUES (%s);" % (pre, ','.join(fields), '),('.join(newRows))
 
 def parseTable(x):
     tableName, rest = split(x, '(\n')
@@ -45,14 +68,18 @@ def migrateTable(x):
     origName = x['name']
     x['name'] = mapping.get('name', x['name'])
     x['inserts'] = map(lambda i: i.replace(origName, x['name']), x['inserts'])
-    if 'columns' not in mapping.keys():
-        return x
-    for k, v in mapping['columns'].items():
-        x['body'] = x['body'].replace(k, v)
-        x['inserts'] = map(lambda i: i.replace(k, v), x['inserts'])
+
+    if 'columns' in mapping.keys():
+        for k, v in mapping['columns'].items():
+            x['body'] = x['body'].replace(k, v)
+            x['inserts'] = map(lambda i: i.replace(k, v), x['inserts'])
 
     if mapping.get('add', False):
         x = addMissingColumns(x, mapping)
+
+    if mapping.get('remove', False):
+        x = removeColumns(x, mapping)
+
     return x
 
 
@@ -89,6 +116,6 @@ tables = filter(hasInserts, tables) # Ignore tables without inserts
 tables = filter(ignoreBlacklist, tables) # currently ignores 'alerts'
 tables = map(migrateTable, tables) # map correct table and column namesa
 
-[showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
+[showInserts(x) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'

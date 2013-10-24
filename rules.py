@@ -1,4 +1,4 @@
-mappings = {
+mappingOnly = {
     'billerActiveCurrencies': {
         'columns': {
             'default': 'is_default'
@@ -12,33 +12,7 @@ mappings = {
     },
 
     'billerPaymentDetails': {
-        'populate': [
-            {
-                'rule': 'WHERE ',
-                'columns': {
-                    'original' : [
-                        'billerPaymentDetailID' ,
-                        'customerID' ,
-                        'cardNumber' ,
-                        'cardExpiryMonth',
-                        'cardExpiryYear' ,
-                        'billerCardTypeID' ,
-                        'storedbillerID' ,
-                        'active' ,
-                    ],
-                    'new' : [
-                        'billerPaymentDetailID' ,
-                        'customerID' ,
-                        'cardNumber' ,
-                        'cardExpiryMonth',
-                        'cardExpiryYear' ,
-                        'billerCardTypeID' ,
-                        'billerID' ,
-                        'active' ,
-                    ],
-                }
-            }
-        ]
+        'remove': ['cardCVV'],
     },
 
     'clients': {
@@ -195,3 +169,9 @@ insertOnly = [
     'translations',
     'users',
 ]
+
+mappingOnly = {
+    'billerPaymentDetails': {
+        'remove': ['cardCVV'],
+    },
+}
