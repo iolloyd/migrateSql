@@ -4,17 +4,14 @@ mappingOnly = {
             'default': 'is_default'
         }
     },
-
     'billerCardTypes': {
         'add': {
             'key': ''
         }
     },
-
     'billerPaymentDetails': {
-        'remove': ['cardCVV'],
+        'remove': ['cardType', 'cardCVV'],
     },
-
     'clients': {
         'columns': {
             'APIKey': 'apiKey'
@@ -170,8 +167,29 @@ insertOnly = [
     'users',
 ]
 
+legacyOnly = [
+    'acl',
+]
+
+insertOnly = [
+    'agencies',
+    'billerCards',
+    'billerCosts',
+    'billerCurrencies',
+]
+
 mappingOnly = {
+    'billerActiveCurrencies': {
+        'columns': {
+            'default': 'is_default'
+        }
+    },
+    'billerCardTypes': {
+        'add': {
+            'key': ''
+        }
+    },
     'billerPaymentDetails': {
-        'remove': ['cardCVV'],
+        'remove': ['storedBillerID', 'cardType', 'cardCVV'],
     },
 }

@@ -16,16 +16,18 @@ def removeColumns(table, m):
 
 def injectValue(insert, mapping):
     chunks= split(insert, '(', 2)
-    for newColumn, newValue in mapping.items():
-        chunks[1] = "`%s`, %s" % (newColumn, chunks[1])
+    for newColumn, newValue in mapping['add'].items():
+        columns = "`%s`, %s" % (newColumn, chunks[1])
+        rows = chunks[2].split('),(')
         if type(1) == type(newValue):
-            chunks[2] = "%s, %s" % (newValue, chunks[2])
+            rows = map(lambda x: "%s,%s" % (newValue, x), rows)
         else:
-            chunks[2] = "'%s', %s" % (newValue, chunks[2])
-    chunks[1] = "(%s" % chunks[1]
-    chunks[2] = "(%s" % chunks[2]
-    return ''.join(chunks)
-
+            rows = map(lambda x: "'%s',%s" % (newValue, x), rows)
+    rows = map(lambda x: "(%s)" % x, rows)
+    rows = ','.join(rows)
+    result = "%s(%s %s" % (chunks[0], columns, rows)
+    result = result.replace('))', ')')
+    return result
 
 def removeValue(insert, mapping):
     fields, values = insert.split(') VALUES (')
@@ -37,10 +39,17 @@ def removeValue(insert, mapping):
     values = values.split('),(')
     newRows = []
     for row in values:
-        for idx in indexes:
-            row.remove(row.split(",")[idx])
-            newRows.append(','.join(row))
-    return "%s (%s) VALUES (%s);" % (pre, ','.join(fields), '),('.join(newRows))
+        try:
+            for idx in indexes:
+                row = row.split(",")
+                row.remove(row[idx])
+                row = ','.join(row)
+        except AttributeError:
+            print 'oops:', row
+            exit()
+        newRows.append(row)
+    return "%s (%s) VALUES (%s" % (pre, ','.join(fields), '),('.join(newRows))
+
 
 def parseTable(x):
     tableName, rest = split(x, '(\n')
@@ -48,7 +57,7 @@ def parseTable(x):
     rest = split(rest, ');\n')
     body = split(rest[0], '/*')
     body = split(body[0], ';\n')[0]
-    inserts = map(lambda line: "INSERT INTO %s" % line, split(rest[0], "INSERT INTO")[1:])
+    inserts = map(lambda line: "INSERT INTO %s)" % line, split(rest[0], "INSERT INTO")[1:])
     return {
         'body': body,
         'name': strip(tableName, ' '),
@@ -76,6 +85,7 @@ def handleColumnMapping(x, mapping):
             x['inserts'] = map(lambda i: i.replace(k, v), x['inserts'])
     return x
 
+
 def handleColumnUpdates(x, mapping):
     if mapping.get('add', False):
         x = addMissingColumns(x, mapping)
@@ -89,10 +99,12 @@ def showTable(x):
         print "DROP TABLE if exists %s;" % x['name']
         print "CREATE TABLE %s (\n%s;\n" % (x['name'], x['body'])
 
+
 def showInserts(x):
     for table in x['inserts']:
         print 'DELETE FROM %s;' % x['name']
-        print "%s);" % table
+        print "%s;" % table
+
 
 justUseful = lambda x: split(x, '\n')
 label = lambda tableName, mapping: mapping.get(tableName, tableName)
