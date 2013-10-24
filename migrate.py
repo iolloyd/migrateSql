@@ -68,18 +68,23 @@ def migrateTable(x):
     origName = x['name']
     x['name'] = mapping.get('name', x['name'])
     x['inserts'] = map(lambda i: i.replace(origName, x['name']), x['inserts'])
+    x = handleColumnMapping(x, mapping)
+    x = handleColumnUpdates(x, mapping)
+    return x
 
+
+def handleColumnMapping(x, mapping):
     if 'columns' in mapping.keys():
         for k, v in mapping['columns'].items():
             x['body'] = x['body'].replace(k, v)
             x['inserts'] = map(lambda i: i.replace(k, v), x['inserts'])
+    return x
 
+def handleColumnUpdates(x, mapping):
     if mapping.get('add', False):
         x = addMissingColumns(x, mapping)
-
     if mapping.get('remove', False):
         x = removeColumns(x, mapping)
-
     return x
 
 
