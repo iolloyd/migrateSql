@@ -30,19 +30,19 @@ def injectValue(insert, mapping):
     return result
 
 def removeValue(insert, mapping):
-    fields, values = insert.split(') VALUES (')
+    fields, rows = insert.split(') VALUES (')
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
     indexes = map(lambda x, f=fields: f.index('`%s`' % x), mapping['remove'])
     for w in mapping['remove']:
         fields.remove('`%s`' % w)
-    values = values.split('),(')
+    rows = rows.split('),(')
     newRows = []
-    for row in values:
+    for row in rows:
         try:
             for idx in indexes:
                 row = row.split(",")
-                row.remove(row[idx])
+                row.pop(idx)
                 row = ','.join(row)
         except AttributeError:
             print 'oops:', row
@@ -52,7 +52,12 @@ def removeValue(insert, mapping):
 
 
 def parseTable(x):
-    tableName, rest = split(x, '(\n')
+    try:
+        tableName, rest = split(x, '(\n', 1)
+    except ValueError:
+        print 'PROBLEM'
+        print 'too many values to unpack'
+        exit()
     tableName = tableName.translate(None, '`')
     rest = split(rest, ');\n')
     body = split(rest[0], '/*')
@@ -114,6 +119,8 @@ blacklist = ['alerts', 'emailQueue']
 ignoreBlacklist = lambda t: t['name'] not in blacklist
 
 filename = 'fullDump.sql'
+#filename = 'testDump.sql'
+
 database = 'tf_framework'
 pivotTables = ['orderAddresses']
 
@@ -129,6 +136,8 @@ tables = filter(hasInserts, tables) # Ignore tables without inserts
 tables = filter(ignoreBlacklist, tables) # currently ignores 'alerts'
 tables = map(migrateTable, tables) # map correct table and column namesa
 
+[showTable(x) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
+[showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'
