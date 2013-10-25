@@ -33,11 +33,15 @@ def removeValue(insert, mapping, newRows=[]):
     rows = rows.split('),(')
     for row in rows:
         for idx in indexes:
-            row = row.split(",")
-            row.pop(idx)
-            row = ','.join(row)
+            row = removeFromRow(row, idx)
         newRows.append(row)
     return "%s (%s) VALUES (%s" % (pre, ','.join(fields), '),('.join(newRows))
+
+
+def removeFromRow(row, idx):
+    row = row.split(",")
+    row.pop(idx)
+    return ','.join(row)
 
 
 def changeColumns(table, mapping, f):
@@ -82,9 +86,9 @@ def handleColumnMapping(x, mapping):
 
 def handleColumnUpdates(x, mapping):
     if mapping.get('add', False):
-        x = addColumns(x, mapping)
+        x = changeColumns(x, mapping, injectValue)
     if mapping.get('remove', False):
-        x = removeColumns(x, mapping)
+        x = changeColumns(x, mapping, removeValue)
     return x
 
 
@@ -98,10 +102,6 @@ def showInserts(x):
         print 'DELETE FROM %s;' % x['name']
         print "%s;" % table
 
-addColumns      = lambda t, m, f=injectValue: changeColumns(t, m, f)
-removeColumns   = lambda t, m, f=removeValue: changeColumns(t, m, f)
-justUseful      = lambda x: split(x, '\n')
-
 filename = 'fullDump.sql'
 #filename = 'testDump.sql'
 
@@ -111,7 +111,7 @@ pivotTables = ['orderAddresses']
 sql = open(filename).read()
 tables = split(sql, 'CREATE TABLE ')
 tables = tables[1:] # Ditch the header comments
-tables = filter(justUseful, tables) # Get rid of other comments
+tables = filter(lambda x: split(x, '\n'), tables) # Get rid of other comments
 tables = map(parseTable, tables) # Create table objects
 tables = map(migrateTable, tables) # map correct table and column names
 
