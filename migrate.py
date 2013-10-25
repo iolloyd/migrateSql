@@ -6,13 +6,6 @@ from rules import mappingOnly, legacyOnly, insertOnly
 def getMappings(x):
     return mappingOnly.get(x, False)
 
-def addMissingColumns(table, mapping):
-    table['inserts'] = map(lambda x, m=mapping: injectValue(x, m), table['inserts'])
-    return table
-
-def removeColumns(table, m):
-    table['inserts'] = map(lambda x, m=m: removeValue(x, m), table['inserts'])
-    return table
 
 def injectValue(insert, mapping):
     chunks= split(insert, '(', 2)
@@ -29,7 +22,8 @@ def injectValue(insert, mapping):
     result = result.replace('))', ')')
     return result
 
-def removeValue(insert, mapping):
+
+def removeValue(insert, mapping, newRows=[]):
     fields, rows = insert.split(') VALUES (')
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
@@ -37,27 +31,22 @@ def removeValue(insert, mapping):
     for w in mapping['remove']:
         fields.remove('`%s`' % w)
     rows = rows.split('),(')
-    newRows = []
     for row in rows:
-        try:
-            for idx in indexes:
-                row = row.split(",")
-                row.pop(idx)
-                row = ','.join(row)
-        except AttributeError:
-            print 'oops:', row
-            exit()
+        for idx in indexes:
+            row = row.split(",")
+            row.pop(idx)
+            row = ','.join(row)
         newRows.append(row)
     return "%s (%s) VALUES (%s" % (pre, ','.join(fields), '),('.join(newRows))
 
 
+def changeColumns(table, mapping, f):
+    table['inserts'] = map(lambda x, m=mapping: f(x, m), table['inserts'])
+    return table
+
+
 def parseTable(x):
-    try:
-        tableName, rest = split(x, '(\n', 1)
-    except ValueError:
-        print 'PROBLEM'
-        print 'too many values to unpack'
-        exit()
+    tableName, rest = split(x, '(\n', 1)
     tableName = tableName.translate(None, '`')
     rest = split(rest, ');\n')
     body = split(rest[0], '/*')
@@ -84,7 +73,7 @@ def migrateTable(x):
 
 
 def handleColumnMapping(x, mapping):
-    if 'columns' in mapping.keys():
+    if mapping.get('columns', False):
         for k, v in mapping['columns'].items():
             x['body'] = x['body'].replace(k, v)
             x['inserts'] = map(lambda i: i.replace(k, v), x['inserts'])
@@ -93,16 +82,15 @@ def handleColumnMapping(x, mapping):
 
 def handleColumnUpdates(x, mapping):
     if mapping.get('add', False):
-        x = addMissingColumns(x, mapping)
+        x = addColumns(x, mapping)
     if mapping.get('remove', False):
         x = removeColumns(x, mapping)
     return x
 
 
 def showTable(x):
-    if len(x['inserts']) > 0:
-        print "DROP TABLE if exists %s;" % x['name']
-        print "CREATE TABLE %s (\n%s;\n" % (x['name'], x['body'])
+    print "DROP TABLE if exists %s;" % x['name']
+    print "CREATE TABLE %s (\n%s;\n" % (x['name'], x['body'])
 
 
 def showInserts(x):
@@ -110,13 +98,9 @@ def showInserts(x):
         print 'DELETE FROM %s;' % x['name']
         print "%s;" % table
 
-
-justUseful = lambda x: split(x, '\n')
-label = lambda tableName, mapping: mapping.get(tableName, tableName)
-isInsert = lambda x: len(x.split('INSERT IGNORE INTO')) > 1
-hasInserts = lambda t: len(t['inserts']) > 0
-blacklist = ['alerts', 'emailQueue']
-ignoreBlacklist = lambda t: t['name'] not in blacklist
+addColumns      = lambda t, m, f=injectValue: changeColumns(t, m, f)
+removeColumns   = lambda t, m, f=removeValue: changeColumns(t, m, f)
+justUseful      = lambda x: split(x, '\n')
 
 filename = 'fullDump.sql'
 #filename = 'testDump.sql'
@@ -124,17 +108,15 @@ filename = 'fullDump.sql'
 database = 'tf_framework'
 pivotTables = ['orderAddresses']
 
-print 'USE %s;' % database
-print 'SET FOREIGN_KEY_CHECKS = 0;'
-
 sql = open(filename).read()
 tables = split(sql, 'CREATE TABLE ')
 tables = tables[1:] # Ditch the header comments
 tables = filter(justUseful, tables) # Get rid of other comments
 tables = map(parseTable, tables) # Create table objects
-tables = filter(hasInserts, tables) # Ignore tables without inserts
-tables = filter(ignoreBlacklist, tables) # currently ignores 'alerts'
-tables = map(migrateTable, tables) # map correct table and column namesa
+tables = map(migrateTable, tables) # map correct table and column names
+
+print 'USE %s;' % database
+print 'SET FOREIGN_KEY_CHECKS = 0;'
 
 [showTable(x) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
