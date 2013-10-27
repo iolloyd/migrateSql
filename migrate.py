@@ -23,14 +23,15 @@ def injectValue(insert, mapping):
     return result
 
 
-def removeValue(insert, mapping, newRows=[]):
+def removeValue(insert, mapping):
     fields, rows = insert.split(') VALUES (')
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
-    indexes = map(lambda x, f=fields: f.index('`%s`' % x), mapping['remove'])
+    indexes = map(lambda x: fields.index('`%s`' % x), mapping['remove'])
     for w in mapping['remove']:
         fields.remove('`%s`' % w)
     rows = rows.split('),(')
+    newRows = []
     for row in rows:
         for idx in indexes:
             row = removeFromRow(row, idx)
@@ -55,7 +56,7 @@ def parseTable(x):
     rest = split(rest, ');\n')
     body = split(rest[0], '/*')
     body = split(body[0], ';\n')[0]
-    inserts = map(lambda line: "INSERT INTO %s)" % line, split(rest[0], "INSERT INTO")[1:])
+    inserts = map(lambda line: "INSERT INTO %s" % line, split(rest[0], "INSERT INTO")[1:])
     return {
         'body': body,
         'name': strip(tableName, ' '),
@@ -98,12 +99,12 @@ def showTable(x):
 
 
 def showInserts(x):
-    for table in x['inserts']:
+    for insert in x['inserts']:
         print 'DELETE FROM %s;' % x['name']
-        print "%s;" % table
+        insert = "%s);" % insert
+        print insert
 
 filename = 'fullDump.sql'
-#filename = 'testDump.sql'
 
 database = 'tf_framework'
 pivotTables = ['orderAddresses']

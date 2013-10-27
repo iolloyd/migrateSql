@@ -1,16 +1,19 @@
 mappingOnly = {
+    'orders': {
+        'remove': ['insuranceCost', 'packingCost', 'shippingCost', 'handlingCost', 'deliveryDate', 'shippingDate', 'shipper', 'details', 'shipwireID', 'warehouseID', 'shipwireReferenceID', 'trackingID', 'trackingUrl'],
+    },
     'billerActiveCurrencies': {
         'columns': {
             'default': 'is_default'
         }
     },
     'billerCardTypes': {
-        'add': {
-            'key': ''
-        }
     },
     'billerPaymentDetails': {
         'remove': ['cardType', 'cardCVV'],
+        'columns': {
+            'storedBillerID': 'billerID'
+        },
     },
     'clients': {
         'columns': {
@@ -23,26 +26,9 @@ mappingOnly = {
         'columns': {
             'languageID': 'id'
             },
-        'add': {
-            'title': ''
-            },
-        },
-    'orders': {
-        'populate': [
-            {
-                'rule': 'WHERE orders.orderID = billerTransactionRequests.orderID',
-                'columns': {
-                    'original': ['shippingAddressID', ],
-                    'new': ['shippingAddressID', ],
-                    }
-                }
-            ]
         },
     'orderItems': {
-        'add': {
-            'baseValue': ''
-            }
-        },
+    },
     'orderAddresses': {
         'name': 'order_addresses',
         'columns': {
@@ -79,15 +65,12 @@ mappingOnly = {
                 }
             }
     },
+    """
     'productRanges': {
-        'add': {
-            'name': ''
-        }
+        'remove': ['name']
     },
+    """
     'storeCoupons': {
-        'add': {
-            'approval_code': ''
-        },
     },
     'storeCouponUses': {
         'columns': {
@@ -131,7 +114,6 @@ insertOnly = [
     'handsetProviderDevices',
     'handsetProviders',
     'orderAddresses',
-    'orderItems',
     'productCategories',
     'productCategoryValues',
     'productDefaultFields',
@@ -167,29 +149,3 @@ insertOnly = [
     'users',
 ]
 
-legacyOnly = [
-    'acl',
-]
-
-insertOnly = [
-    'agencies',
-    'billerCards',
-    'billerCosts',
-    'billerCurrencies',
-]
-
-mappingOnly = {
-    'billerActiveCurrencies': {
-        'columns': {
-            'default': 'is_default'
-        }
-    },
-    'billerCardTypes': {
-        'add': {
-            'key': ''
-        }
-    },
-    'billerPaymentDetails': {
-        'remove': ['storedBillerID', 'cardType', 'cardCVV'],
-    },
-}
