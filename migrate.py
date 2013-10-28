@@ -1,7 +1,7 @@
 from __future__ import print_function
 from pprint import pprint
 from string import split, strip
-from rules import mappingOnly, legacyOnly, insertOnly
+from rules import mappingOnly, insertOnly
 import sys
 
 
