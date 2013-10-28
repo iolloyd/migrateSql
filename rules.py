@@ -73,15 +73,6 @@ mappingOnly = {
     }
 }
 
-legacyOnly = [
-    'customFieldBindings',
-    'emailQueue',
-    'invoices',
-    'ipranges',
-    'productReviews',
-    'promotionRulesMeta',
-]
-
 insertOnly = [
     'agencies',
     'billerCards',

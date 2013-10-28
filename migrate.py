@@ -128,7 +128,6 @@ if __name__ == '__main__':
     print('USE %s;' % database, file=outfile)
     print('SET FOREIGN_KEY_CHECKS = 0;', file=outfile)
 
-    [showTable(x, outfile) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
     [showInserts(x, outfile) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 
     print('SET FOREIGN_KEY_CHECKS = 1;', file=outfile)
