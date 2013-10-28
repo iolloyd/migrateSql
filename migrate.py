@@ -109,8 +109,8 @@ def showTable(x, f):
 
 
 def showInserts(x, f):
+    print('DELETE FROM %s;' % x['name'], file=f)
     for insert in x['inserts']:
-        print('DELETE FROM %s;' % x['name'], file=f)
         insert = "%s" % insert
         print(insert, file=f)
 
