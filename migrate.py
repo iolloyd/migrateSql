@@ -43,7 +43,7 @@ def removeValue(insert, mapping):
         for idx in indexes:
             row = removeFromRow(row, idx)
         newRows.append(row)
-    return "%s (%s) VALUES (%s" % (pre, ','.join(fields), '),('.join(newRows))
+    return "%s (%s) VALUES (%s);" % (pre, ','.join(fields), '),('.join(newRows))
 
 
 def removeFromRow(row, idx):
@@ -80,7 +80,7 @@ def migrateTable(x):
     if not mapping:
         return x
     origName = x['name']
-    x['name'] = mapping.get('name', x['name'])
+    x['name'] = mapping.get('name', origName)
     x['inserts'] = map(lambda i: i.replace(origName, x['name']), x['inserts'])
     x = handleColumnMapping(x, mapping)
     x = handleColumnUpdates(x, mapping)
@@ -120,17 +120,15 @@ if __name__ == '__main__':
 
     sql = open(infile).read()
     tables = split(sql, 'CREATE TABLE ')
-    tables = tables[1:] # Ditch the header comments
-    tables = filter(lambda x: split(x, '\n'), tables) # Get rid of other comments
-    tables = map(parseTable, tables) # Create table objects
-    tables = map(migrateTable, tables) # map correct table and column names
+    tables = tables[1:]
+    tables = filter(lambda x: split(x, '\n'), tables)
+    tables = map(parseTable, tables)
+    tables = map(migrateTable, tables)
 
     print('USE %s;' % database, file=outfile)
     print('SET FOREIGN_KEY_CHECKS = 0;', file=outfile)
 
-
     [showTable(x, outfile) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
     [showInserts(x, outfile) for x in filter(lambda x: x['name'] in insertOnly, tables)]
-    [showInserts(x, outfile) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
 
     print('SET FOREIGN_KEY_CHECKS = 1;', file=outfile)

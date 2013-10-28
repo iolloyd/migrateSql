@@ -22,6 +22,12 @@ mappingOnly = {
     },
     'customerBlacklists': {
         'name': 'customer_blacklists',
+        'remove': ['timedate'],
+        'columns': {
+            'customerBlacklistID': 'customer_blacklist_id',
+            'customerID': 'customer_id',
+            'storeID': 'store_id',
+        }
     },
     'languages': {
         'columns': {
@@ -84,7 +90,7 @@ insertOnly = [
     # 'billerTransactionRequests',
     'billerTransactions',
     'customerAuthentication',
-    'customerBlacklists',
+    'customer_blacklists',
     'customers',
     'customFieldBindings',
     'customFields',
