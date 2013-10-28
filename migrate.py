@@ -2,8 +2,8 @@ from __future__ import print_function
 from pprint import pprint
 from string import split, strip
 from rules import mappingOnly, legacyOnly, insertOnly
+import sys
 
-import argparse
 
 def getMappings(x):
     return mappingOnly.get(x, False)
@@ -109,12 +109,8 @@ def showInserts(x, f):
 database = 'tf_framework'
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Migrate from legacy to framework', version='%(prog)s 1.0')
-    parser.add_argument('-i', type=str, required=True)
-    parser.add_argument('-o', type=str, required=True)
-    args = parser.parse_args()
-    infile = args.i
-    outfile = open(args.o, 'w')
+    infile = sys.argv[1]
+    outfile = open(sys.argv[2], 'w')
 
     sql = open(infile).read()
     tables = split(sql, 'CREATE TABLE ')
