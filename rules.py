@@ -36,34 +36,9 @@ mappingOnly = {
             'orderID': 'order_id',
             'customerAddressID': 'customer_address_id',
             },
-        'populate': [
-            {
-                'rule': 'WHERE orderAddresses.customerAddressID = customerAddress.customerAddressID',
-                'columns': {
-                    'original': [],
-                    'new': [],
-                    }
-                },
-            {
-                'rule': 'WHERE orderAddresses.orderAddressID = billerTransactionRequests.id',
-                'columns': {
-                    'original': ['billingAddressID'],
-                    'new': ['billingAddressID']
-                }
-            }
-        ]
     },
     'orderQuotes': {
         'name': 'orderInvoices'
-    },
-    'orderShipments': {
-            'populate': {
-                'rule': 'WHERE orderShipments.orderID=order.orderID',
-                'columns': {
-                    'original': [],
-                    'new': []
-                }
-            }
     },
     """
     'productRanges': {
@@ -88,7 +63,8 @@ legacyOnly = [
     'acl',
     'aclGroups',
     'aclPermissions',
-    'aclRoles', 'customFieldBindings',
+    'aclRoles',
+    'customFieldBindings',
     'emailQueue',
     'invoices',
     'ipranges',

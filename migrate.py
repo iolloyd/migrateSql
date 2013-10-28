@@ -122,5 +122,6 @@ print 'SET FOREIGN_KEY_CHECKS = 0;'
 [showTable(x) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
+showCustomSql()
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'
