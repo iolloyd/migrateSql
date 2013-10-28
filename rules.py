@@ -74,10 +74,6 @@ mappingOnly = {
 }
 
 legacyOnly = [
-    'acl',
-    'aclGroups',
-    'aclPermissions',
-    'aclRoles',
     'customFieldBindings',
     'emailQueue',
     'invoices',
