@@ -6,4 +6,4 @@ Migration tool for sql
 Usage
 -----
 
-python migrate.py > import.sql
+python migrate.py -i infile.sql -o outfile.sql 

@@ -1,6 +1,8 @@
+from __future__ import print_function
 from pprint import pprint
 from string import split, strip
 from rules import mappingOnly, legacyOnly, insertOnly
+
 import argparse
 
 def getMappings(x):
@@ -93,16 +95,16 @@ def handleColumnUpdates(x, mapping):
     return x
 
 
-def showTable(x):
-    print "DROP TABLE if exists %s;" % x['name']
-    print "CREATE TABLE %s (\n%s;\n" % (x['name'], x['body'])
+def showTable(x, f):
+    print("DROP TABLE if exists %s;" % x['name'], file=f)
+    print("CREATE TABLE %s (\n%s;\n" % (x['name'], x['body']), file=f)
 
 
-def showInserts(x):
+def showInserts(x, f):
     for insert in x['inserts']:
-        print 'DELETE FROM %s;' % x['name']
+        print('DELETE FROM %s;' % x['name'], file=f)
         insert = "%s);" % insert
-        print insert
+        print(insert, file=f)
 
 database = 'tf_framework'
 
@@ -112,7 +114,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', type=str, required=True)
     args = parser.parse_args()
     infile = args.i
-    outfile = args.o
+    outfile = open(args.o, 'w')
 
     sql = open(infile).read()
     tables = split(sql, 'CREATE TABLE ')
@@ -121,12 +123,12 @@ if __name__ == '__main__':
     tables = map(parseTable, tables) # Create table objects
     tables = map(migrateTable, tables) # map correct table and column names
 
-    print 'USE %s;' % database
-    print 'SET FOREIGN_KEY_CHECKS = 0;'
+    print('USE %s;' % database, file=outfile)
+    print('SET FOREIGN_KEY_CHECKS = 0;', file=outfile)
 
 
-    [showTable(x) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
-    [showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
-    [showInserts(x) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
+    [showTable(x, outfile) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
+    [showInserts(x, outfile) for x in filter(lambda x: x['name'] in insertOnly, tables)]
+    [showInserts(x, outfile) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
 
-    print 'SET FOREIGN_KEY_CHECKS = 1;'
+    print('SET FOREIGN_KEY_CHECKS = 1;', file=outfile)
