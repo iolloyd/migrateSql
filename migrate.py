@@ -1,7 +1,7 @@
 from pprint import pprint
 from string import split, strip
 from rules import mappingOnly, legacyOnly, insertOnly
-
+import sys
 
 def getMappings(x):
     return mappingOnly.get(x, False)
@@ -103,11 +103,13 @@ def showInserts(x):
         print 'DELETE FROM %s;' % x['name']
         insert = "%s);" % insert
         print insert
-
-filename = 'fullDump.sql'
+filename = sys.argv[1]
+outfile = sys.argv[2]
 
 database = 'tf_framework'
 pivotTables = ['orderAddresses']
+
+print filename, outfile; exit()
 
 sql = open(filename).read()
 tables = split(sql, 'CREATE TABLE ')
@@ -119,9 +121,9 @@ tables = map(migrateTable, tables) # map correct table and column names
 print 'USE %s;' % database
 print 'SET FOREIGN_KEY_CHECKS = 0;'
 
+
 [showTable(x) for x in filter(lambda x: x['name'] in legacyOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 [showInserts(x) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
-showCustomSql()
 
 print 'SET FOREIGN_KEY_CHECKS = 1;'
