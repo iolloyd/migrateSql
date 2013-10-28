@@ -1,4 +1,11 @@
 mappingOnly = {
+    'productCategoryValues': {
+        'name': 'storeCategoryValues',
+        'columns': {
+            'productCategoryValueID': 'storeCategoryValueID',
+            'productCategoryID': 'storeCategoryID',
+        },
+    },
     'orders': {
         'remove': ['insuranceCost', 'packingCost', 'shippingCost', 'handlingCost', 'deliveryDate', 'shippingDate', 'shipper', 'details', 'shipwireID', 'warehouseID', 'shipwireReferenceID', 'trackingID', 'trackingUrl'],
     },
@@ -98,8 +105,6 @@ insertOnly = [
     'handsetProviders',
     'orderAddresses',
     'productCategories',
-    'productCategoryValues',
-    'productDefaultFields',
     'productFields',
     'productFieldValues',
     'productImageGroups',
@@ -110,17 +115,13 @@ insertOnly = [
     'promotionRules',
     'promotions',
     'storeCategories',
-    'storeCategoryValues'
-    'storeCountryBlacklists',
-    'storeErrorStrings',
+    'storeCategoryValues',
     'storeImageGroups',
     'storeImages',
     'storeProducts',
     'storeRegionCurrencies',
     'storeRegions',
     'stores',
-    'storeStrings',
-    'storeThemes',
     'tagDomains',
     'tagLocations',
     'tagRedirectRules',
@@ -128,7 +129,5 @@ insertOnly = [
     'tags',
     'tagScans',
     'transactionLogs',
-    'translations',
-    'users',
 ]
 
