@@ -20,7 +20,8 @@ mappingOnly = {
             'APIKey': 'apiKey'
         },
     },
-    'customerAddresses': {
+    'customerBlacklists': {
+        'name': 'customer_blacklists',
     },
     'languages': {
         'columns': {

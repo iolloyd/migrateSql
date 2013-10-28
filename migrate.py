@@ -114,11 +114,9 @@ def showInserts(x, f):
         insert = "%s" % insert
         print(insert, file=f)
 
-database = 'tf_framework'
-
 if __name__ == '__main__':
-    infile = sys.argv[1]
-    outfile = open(sys.argv[2], 'w')
+    database = 'tf_framework'
+    infile, outfile = sys.argv[1], open(sys.argv[2], 'w')
 
     sql = open(infile).read()
     tables = split(sql, 'CREATE TABLE ')
