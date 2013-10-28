@@ -26,7 +26,12 @@ def injectValue(insert, mapping):
 
 
 def removeValue(insert, mapping):
-    fields, rows = insert.split(') VALUES (')
+    try:
+        fields, rows = insert.split(') VALUES (')
+    except:
+        print('Failed to parse an  insert')
+        print(insert)
+        exit()
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
     indexes = map(lambda x: fields.index('`%s`' % x), mapping['remove'])
@@ -58,14 +63,17 @@ def parseTable(x):
     rest = split(rest, ');\n')
     body = split(rest[0], '/*')
     body = split(body[0], ';\n')[0]
-    inserts = map(lambda line: "INSERT INTO %s" % line, split(rest[0], "INSERT INTO")[1:])
     return {
         'body': body,
         'name': strip(tableName, ' '),
-        'inserts': inserts,
+        'inserts': parseInserts(x),
         'rest': rest
     }
 
+def parseInserts(x):
+    lines = x.split('\n')
+    inserts = filter(lambda x: x[:11] == 'INSERT INTO', lines)
+    return inserts
 
 def migrateTable(x):
     mapping = getMappings(x['name'])

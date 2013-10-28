@@ -39,6 +39,7 @@ CREATE TABLE `acl` (
 LOCK TABLES `acl` WRITE;
 /*!40000 ALTER TABLE `acl` DISABLE KEYS */;
 INSERT INTO `acl` (`aclID`, `aclGroupID`, `aclPermissionID`, `aclRoleID`) VALUES (1,1,1,1),(2,1,1,2),(3,1,1,3),(4,1,1,4);
+INSERT INTO `acl` (`aclID`, `aclGroupID`, `aclPermissionID`, `aclRoleID`) VALUES (1,1,1,1),(2,1,1,2),(3,1,1,3),(4,1,1,4);
 /*!40000 ALTER TABLE `acl` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,6 +65,7 @@ CREATE TABLE `aclGroups` (
 
 LOCK TABLES `aclGroups` WRITE;
 /*!40000 ALTER TABLE `aclGroups` DISABLE KEYS */;
+INSERT INTO `aclGroups` (`aclGroupID`, `name`, `description`) VALUES (1,'Admin','ToyFoundry administrators'),(2,'Customer Support','Customer Support staff'),(3,'Client','Default Client permissions');
 INSERT INTO `aclGroups` (`aclGroupID`, `name`, `description`) VALUES (1,'Admin','ToyFoundry administrators'),(2,'Customer Support','Customer Support staff'),(3,'Client','Default Client permissions');
 /*!40000 ALTER TABLE `aclGroups` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -149,6 +151,7 @@ CREATE TABLE `agencies` (
 
 LOCK TABLES `agencies` WRITE;
 /*!40000 ALTER TABLE `agencies` DISABLE KEYS */;
+INSERT INTO `agencies` (`agencyID`, `companyName`, `contactName`, `contactPhone`, `contactEmail`, `notes`, `status`, `created`, `modified`) VALUES (1,'ToyFoundry Pty Ltd ','Mark Verstege',NULL,'mark.verstege@gmail.com',NULL,'active','2011-07-16 09:58:39','2011-07-16 09:58:39');
 INSERT INTO `agencies` (`agencyID`, `companyName`, `contactName`, `contactPhone`, `contactEmail`, `notes`, `status`, `created`, `modified`) VALUES (1,'ToyFoundry Pty Ltd ','Mark Verstege',NULL,'mark.verstege@gmail.com',NULL,'active','2011-07-16 09:58:39','2011-07-16 09:58:39');
 /*!40000 ALTER TABLE `agencies` ENABLE KEYS */;
 UNLOCK TABLES;
