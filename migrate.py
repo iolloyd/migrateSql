@@ -76,6 +76,7 @@ def parseInserts(x):
     inserts = filter(lambda x: x[:11] == 'INSERT INTO', lines)
     return inserts
 
+
 def migrateTable(x):
     mapping = getMappings(x['name'])
     if not mapping:
@@ -97,6 +98,7 @@ def handleBodyMapping(x, mapping):
             body = filter(lambda x: col not in x, body)
         x['body'] = '\n'.join(body)
     return x
+
 
 def handleColumnMapping(x, mapping):
     if mapping.get('columns', False):
