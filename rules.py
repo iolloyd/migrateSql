@@ -7,14 +7,12 @@ mappingOnly = {
         },
     },
     'orders': {
-        'remove': ['insuranceCost', 'packingCost', 'shippingCost', 'handlingCost', 'deliveryDate', 'shippingDate', 'shipper', 'details', 'shipwireID', 'warehouseID', 'shipwireReferenceID', 'trackingID', 'trackingUrl'],
+        'name': 'tmpOrders'
     },
     'billerActiveCurrencies': {
         'columns': {
             'default': 'is_default'
         }
-    },
-    'billerCardTypes': {
     },
     'billerPaymentDetails': {
         'remove': ['cardType', 'cardCVV'],
@@ -41,8 +39,6 @@ mappingOnly = {
             'languageID': 'id'
             },
         },
-    'orderItems': {
-    },
     'orderAddresses': {
         'name': 'order_addresses',
         'columns': {
@@ -54,12 +50,8 @@ mappingOnly = {
     'orderQuotes': {
         'name': 'orderInvoices'
     },
-    """
-    'productRanges': {
-        'remove': ['name']
-    },
-    """
     'storeCoupons': {
+        'remove': ['requiredProducts'],
     },
     'storeCouponUses': {
         'columns': {
@@ -73,8 +65,13 @@ mappingOnly = {
     }
 }
 
+newTables = [
+    'tmpOrders',
+    'storeCoupons',
+    'users',
+]
+
 insertOnly = [
-    'agencies',
     'billerCards',
     'billerCosts',
     'billerCurrencies',
@@ -83,12 +80,17 @@ insertOnly = [
     'billerStoredDetails',
     #'billerTransactionRequests',
     'billerTransactions',
+    'coupons',
+    'customerAddresses',
     'customerAuthentication',
     'customer_blacklists',
     'customers',
     'customFields',
     'handsetProviderDevices',
     'handsetProviders',
+    'languages',
+    'tmpOrders',
+    'orderItems',
     'productCategories',
     'productFields',
     'productFieldValues',
@@ -101,6 +103,7 @@ insertOnly = [
     'promotions',
     'storeCategories',
     'storeCategoryValues',
+    'storeCoupons',
     'storeImageGroups',
     'storeImages',
     'storeProducts',
@@ -114,5 +117,6 @@ insertOnly = [
     'tags',
     'tagScans',
     'transactionLogs',
+    'users',
 ]
 

@@ -1,7 +1,7 @@
 from __future__ import print_function
 from pprint import pprint
 from string import split, strip
-from rules import mappingOnly, insertOnly
+from rules import mappingOnly, insertOnly, newTables
 import sys
 
 
@@ -43,7 +43,7 @@ def removeValue(insert, mapping):
         for idx in indexes:
             row = removeFromRow(row, idx)
         newRows.append(row)
-    return "%s (%s) VALUES (%s);" % (pre, ','.join(fields), '),('.join(newRows))
+    return "%s (%s) VALUES (%s" % (pre, ','.join(fields), '),('.join(newRows))
 
 
 def removeFromRow(row, idx):
@@ -61,6 +61,7 @@ def parseTable(x):
     tableName, rest = split(x, '(\n', 1)
     tableName = tableName.translate(None, '`')
     rest = split(rest, ');\n')
+    rest[-1] = rest[-1].strip(');')
     body = split(rest[0], '/*')
     body = split(body[0], ';\n')[0]
     return {
@@ -82,10 +83,20 @@ def migrateTable(x):
     origName = x['name']
     x['name'] = mapping.get('name', origName)
     x['inserts'] = map(lambda i: i.replace(origName, x['name']), x['inserts'])
+    x = handleBodyMapping(x, mapping)
     x = handleColumnMapping(x, mapping)
     x = handleColumnUpdates(x, mapping)
     return x
 
+
+def handleBodyMapping(x, mapping):
+    if mapping.get('remove', False):
+        body = x['body'].split('\n')
+        for col in mapping['remove']:
+            print('removing %s' % col)
+            body = filter(lambda x: col not in x, body)
+        x['body'] = '\n'.join(body)
+    return x
 
 def handleColumnMapping(x, mapping):
     if mapping.get('columns', False):
@@ -104,14 +115,20 @@ def handleColumnUpdates(x, mapping):
 
 
 def showTable(x, f):
+    print("creating new table: %s" % x['name'])
     print("DROP TABLE if exists %s;" % x['name'], file=f)
     print("CREATE TABLE %s (\n%s;\n" % (x['name'], x['body']), file=f)
 
-
 def showInserts(x, f):
-    print('DELETE FROM %s;' % x['name'], file=f)
+    if len(x['inserts']) > 0:
+        print("Handling inserts for %s" %  x['name'])
+        print('DELETE FROM %s;' % x['name'], file=f)
     for insert in x['inserts']:
-        insert = "%s" % insert
+        if insert[-2:] != ");":
+            insert = "%s);" % insert
+        else:
+            insert = "%s" % insert
+
         print(insert, file=f)
 
 if __name__ == '__main__':
@@ -128,6 +145,8 @@ if __name__ == '__main__':
     print('USE %s;' % database, file=outfile)
     print('SET FOREIGN_KEY_CHECKS = 0;', file=outfile)
 
+    [showTable(x, outfile) for x in filter(lambda x: x['name'] in newTables, tables)]
+    [showInserts(x, outfile) for x in filter(lambda x: x['name'] in mappingOnly, tables)]
     [showInserts(x, outfile) for x in filter(lambda x: x['name'] in insertOnly, tables)]
 
     print('SET FOREIGN_KEY_CHECKS = 1;', file=outfile)
