@@ -111,7 +111,7 @@ def showTable(x, f):
 def showInserts(x, f):
     for insert in x['inserts']:
         print('DELETE FROM %s;' % x['name'], file=f)
-        insert = "%s);" % insert
+        insert = "%s" % insert
         print(insert, file=f)
 
 database = 'tf_framework'
