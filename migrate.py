@@ -10,7 +10,7 @@ def getMappings(x):
 
 
 def injectValue(insert, mapping):
-    chunks= split(insert, '(', 2)
+    chunks = split(insert, '(', 2)
     for newColumn, newValue in mapping['add'].items():
         columns = "`%s`, %s" % (newColumn, chunks[1])
         rows = chunks[2].split('),(')
@@ -29,8 +29,7 @@ def removeValue(insert, mapping):
     try:
         fields, rows = insert.split(') VALUES (')
     except:
-        print('Failed to parse an  insert')
-        print(insert)
+        print('Failed value parsing: %s ... %s' % (insert[:30], insert[-10:]))
         exit()
     pre, fields = fields.split('(', 1)
     fields = map(strip, fields.split(','))
