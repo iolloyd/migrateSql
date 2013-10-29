@@ -121,6 +121,7 @@ def showTable(x, f):
     print("CREATE TABLE %s (\n%s;\n" % (x['name'], x['body']), file=f)
 
 def showInserts(x, f):
+    print('Looking for inserts for %s' % x['name'])
     if len(x['inserts']) > 0:
         print("Building inserts: %s" %  x['name'])
         print('DELETE FROM %s;' % x['name'], file=f)

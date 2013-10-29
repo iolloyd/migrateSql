@@ -93,6 +93,7 @@ insertOnly = [
     'languages',
     'tmpOrders',
     'orderItems',
+    'orderInvoices',
     'productCategories',
     'productFields',
     'productFieldValues',
