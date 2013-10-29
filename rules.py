@@ -9,6 +9,9 @@ mappingOnly = {
     'orders': {
         'name': 'tmpOrders'
     },
+    'orderQuotes': {
+        'name': 'orderInvoices'
+    },
     'billerActiveCurrencies': {
         'columns': {
             'default': 'is_default'
@@ -68,7 +71,6 @@ mappingOnly = {
 newTables = [
     'tmpOrders',
     'storeCoupons',
-    'users',
 ]
 
 insertOnly = [
@@ -117,6 +119,5 @@ insertOnly = [
     'tags',
     'tagScans',
     'transactionLogs',
-    'users',
 ]
 

@@ -122,15 +122,17 @@ def showTable(x, f):
 
 def showInserts(x, f):
     if len(x['inserts']) > 0:
-        print("Handling inserts for %s" %  x['name'])
+        print("Building inserts: %s" %  x['name'])
         print('DELETE FROM %s;' % x['name'], file=f)
     for insert in x['inserts']:
         if insert[-2:] != ");":
             insert = "%s);" % insert
         else:
             insert = "%s" % insert
-
-        print(insert, file=f)
+        try:
+            print(insert, file=f)
+        except:
+            print('Problem: %s...%s' % (insert[:30], insert[-30:]))
 
 if __name__ == '__main__':
     database = 'tf_framework'
